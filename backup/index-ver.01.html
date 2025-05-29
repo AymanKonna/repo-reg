@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Repository Registrar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Repository Registrar</h1>
+            <p class="text-gray-600">Manage your development projects</p>
+        </header>
+        
+        <section class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Projects</h2>
+            
+            {% if projects and projects|length > 0 %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for project in projects %}
+                        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <h3 class="font-medium text-lg">{{ project.name }}</h3>
+                            {% if project.description %}
+                                <p class="text-sm text-gray-600 mt-1">{{ project.description }}</p>
+                            {% endif %}
+                            <div class="mt-2 text-xs text-gray-500">
+                                {% if project.url %}
+                                    <a href="{{ project.url }}" class="text-blue-500 hover:underline" target="_blank">View Repository</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-6">
+                    <p class="text-gray-500">No projects found</p>
+                    <p class="mt-1 text-sm text-slate-400">Add your first project using the form above.</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
