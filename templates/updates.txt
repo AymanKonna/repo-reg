@@ -1,0 +1,36 @@
+
+
+**Key changes:**
+
+* **`app.py`:**
+    * The `add_project` function now accepts a `tags_string` argument.
+    * It processes this string (splits by comma, strips whitespace) to create a list of tags.
+    * This `tags_list` is saved in the `tags` field in the MongoDB document.
+    * The `index` route now retrieves `project_tags` from the form and passes it to `add_project`.
+* **`templates/index.html`:**
+    * Added a new input field for "Tags (comma-separated)" in the form.
+    * Project cards now display the list of tags associated with each project.
+    * Corrected the Tailwind CSS link and the SVG `xmlns` attribute.
+    * Made some minor style adjustments to the cards for better information density.
+
+After you update both `app.py` and `templates/index.html` with these new versions, restart your Flask app. You should now be able to add tags when you register a new project, and these tags will be displayed on the project cards!
+
+Let me know how it goes! After this, we can look into adding categories, status, and priority, or start thinking about search/filter
+
+**Key changes in this version (v3.1):**
+
+* **`app.py`:**
+    * Added global lists for `PROJECT_CATEGORIES`, `PROJECT_STATUSES`, and `PROJECT_PRIORITIES`.
+    * The `add_project` function now accepts `category`, `status`, and `priority` as arguments and stores them in the MongoDB document. It includes basic validation to ensure the stored value is one of the predefined options, defaulting to the first option if an invalid value is somehow passed.
+    * The `index` route now retrieves these new fields from the form and passes them to `add_project`.
+    * Crucially, the `index` route now also passes the `PROJECT_CATEGORIES`, `PROJECT_STATUSES`, and `PROJECT_PRIORITIES` lists to the `index.html` template so they can be used to populate the dropdowns. This happens for both GET requests and POST requests that fail validation (to ensure dropdowns are still populated if the form re-renders with an error).
+* **`templates/index.html`:**
+    * Added three new `<select>` dropdown menus in the form for Category, Status, and Priority. These are populated using the lists passed from the Flask app.
+        * They are arranged in a responsive grid for better layout.
+        * Default selections are set (e.g., "Miscellaneous", "To Do", "Medium").
+    * Updated the project cards to display the selected Category (as a badge next to the name), Status, and Priority.
+    * Ensured all external links (`script src`, `link href`) and `xmlns` attributes are plain URLs/values, not Markdown links.
+
+After you update your local `app.py` and `templates/index.html` files with this new code, restart your Flask application. You should now see the new dropdowns in the form and the corresponding information displayed on your project cards.
+
+This adds a significant layer of organization! Let me know how it works for y

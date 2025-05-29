@@ -5,11 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Repository Registrar</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; }
+        body { 
+            background-color: #0f172a; /* slate-900 */
+            font-family: 'Inter', sans-serif; 
+        }
+        .project-list-container::-webkit-scrollbar { width: 8px; }
+        .project-list-container::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
+        .project-list-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .project-list-container::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+	/* Ensure form inputs have dark background and light text */
+        .form-input, .form-select {
+            @apply w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors;
+        }
+        /* Explicitly style select options if needed, though usually inherited */
+        .form-select option {
+            background-color: #1e293b; /* slate-800 or a slightly darker/lighter shade */
+            color: #f1f5f9; /* slate-100 */
+        .form-input, .form-select { /* Added .form-select */
+            @apply w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors;
+        }
+
+        .form-label { @apply block text-sm font-medium text-slate-300 mb-1; }
+        .badge { @apply inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium; }
+        .btn { @apply px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors; }
+        .btn-primary { @apply bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 focus:ring-offset-slate-800; }
+        .btn-danger { @apply px-3 py-1.5 bg-red-700/60 hover:bg-red-700 text-white text-xs focus:ring-red-500 focus:ring-offset-slate-900; }
+        .card { @apply bg-slate-800 rounded-xl shadow-lg flex flex-col hover:shadow-sky-500/20 transition-shadow duration-300; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center pt-8 pb-16 px-4 font-sans">
+<body class="text-slate-100 min-h-screen flex flex-col items-center pt-8 pb-16 px-4">
 
     <div class="w-full max-w-5xl">
         <header class="mb-10 text-center">
@@ -21,7 +48,7 @@
             {% if messages %}
                 <div class="mb-6 space-y-2">
                 {% for category, message in messages %}
-                    <div class="p-4 rounded-md {{ 'bg-sky-800 text-sky-100' if category == 'success' else 'bg-red-800 text-red-100' }}" role="alert">
+                    <div class="p-4 rounded-md text-sm {{ 'bg-sky-500/20 text-sky-300 border border-sky-500/30' if category == 'success' else 'bg-red-500/20 text-red-300 border border-red-500/30' }}" role="alert">
                         <span class="font-medium">{{ message }}</span>
                     </div>
                 {% endfor %}
@@ -33,26 +60,55 @@
             <h2 class="text-2xl font-semibold mb-6 text-sky-300">Add New Project</h2>
             <form action="{{ url_for('index') }}" method="POST" class="space-y-6">
                 <div>
-                    <label for="project_url" class="block text-sm font-medium text-slate-300 mb-1">Project URL <span class="text-red-400">*</span></label>
-                    <input type="url" name="project_url" id="project_url" required
-                           class="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
-                           placeholder="e.g., [https://github.com/user/repo](https://github.com/user/repo)">
+                    <label for="project_url" class="form-label">Project URL <span class="text-red-400">*</span></label>
+                    <input type="url" name="project_url" id="project_url" required class="form-input"
+                           placeholder="e.g., https://github.com/user/repo">
                 </div>
                 <div>
-                    <label for="project_name" class="block text-sm font-medium text-slate-300 mb-1">Project Name (Optional)</label>
-                    <input type="text" name="project_name" id="project_name"
-                           class="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
+                    <label for="project_name" class="form-label">Project Name (Optional)</label>
+                    <input type="text" name="project_name" id="project_name" class="form-input"
                            placeholder="Leave blank to use name from GitHub">
                 </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="project_category" class="form-label">Category</label>
+                        <select name="project_category" id="project_category" class="form-select">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if cat == 'Miscellaneous' %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="project_status" class="form-label">Status</label>
+                        <select name="project_status" id="project_status" class="form-select">
+                            {% for stat in statuses %}
+                            <option value="{{ stat }}" {% if stat == 'To Do' %}selected{% endif %}>{{ stat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="project_priority" class="form-label">Priority</label>
+                        <select name="project_priority" id="project_priority" class="form-select">
+                            {% for prio in priorities %}
+                            <option value="{{ prio }}" {% if prio == 'Medium' %}selected{% endif %}>{{ prio }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
                 <div>
-                    <label for="project_notes" class="block text-sm font-medium text-slate-300 mb-1">Personal Notes</label>
-                    <textarea name="project_notes" id="project_notes" rows="4"
-                              class="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
+                    <label for="project_tags" class="form-label">Tags (comma-separated)</label>
+                    <input type="text" name="project_tags" id="project_tags" class="form-input"
+                           placeholder="e.g., python, data-science, homelab">
+                </div>
+                <div>
+                    <label for="project_notes" class="form-label">Personal Notes</label>
+                    <textarea name="project_notes" id="project_notes" rows="3" class="form-input"
                               placeholder="e.g., 'Try this for the marketing team next week.'"></textarea>
                 </div>
                 <div class="flex justify-end">
-                    <button type="submit"
-                            class="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-colors">
+                    <button type="submit" class="btn btn-primary">
                         Add Project
                     </button>
                 </div>
@@ -62,61 +118,82 @@
         <section>
             <h2 class="text-2xl font-semibold mb-6 text-sky-300">Saved Projects</h2>
             {% if projects %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 project-list-container">
                     {% for project in projects %}
-                    <div class="bg-slate-800 rounded-xl shadow-lg flex flex-col hover:shadow-sky-500/30 transition-shadow duration-300">
-                        <div class="p-6">
-                             <h3 class="text-xl font-semibold text-sky-400 mb-2 truncate" title="{{ project.name }}">{{ project.name }}</h3>
+                    <div class="card">
+                        <div class="p-5 flex-grow">
+                             <div class="mb-2">
+                                <h3 class="text-lg font-semibold text-sky-400 inline mr-2 truncate" title="{{ project.name }}">{{ project.name }}</h3>
+                                {% if project.category %}
+                                    <span class="badge bg-indigo-500/20 text-indigo-300 align-middle">{{ project.category }}</span>
+                                {% endif %}
+                             </div>
+                             <p class="text-xs text-slate-500 mb-3">
+                                 Status: <span class="font-medium text-slate-300">{{ project.status | default('N/A') }}</span> | 
+                                 Priority: <span class="font-medium text-slate-300">{{ project.priority | default('N/A') }}</span>
+                             </p>
                             
                             {% if project.metadata and project.metadata.description %}
-                            <p class="text-sm text-slate-400 mb-4 h-10 overflow-hidden">{{ project.metadata.description }}</p>
+                            <p class="text-sm text-slate-400 mb-3 h-12 overflow-hidden leading-tight" title="{{ project.metadata.description }}">{{ project.metadata.description }}</p>
+                            {% else %}
+                            <p class="text-sm text-slate-500 italic mb-3 h-12">No description available.</p>
                             {% endif %}
                             
                              <p class="text-sm text-slate-400 mb-4">
                                 <a href="{{ project.url }}" target="_blank" rel="noopener noreferrer"
                                    class="text-sky-500 hover:text-sky-400 hover:underline truncate block" title="{{ project.url }}">
-                                   View Source
+                                   View Source &rarr;
                                 </a>
                             </p>
                             
-                            {% if project.metadata %}
+                            {% if project.metadata and (project.metadata.stars is not none or project.metadata.language or project.metadata.forks is not none or project.metadata.open_issues is not none) %}
                             <div class="flex flex-wrap gap-2 text-xs mb-4">
                                 {% if project.metadata.stars is not none %}
-                                <span class="inline-flex items-center bg-yellow-900/50 text-yellow-300 px-2 py-1 rounded-full">
-                                    ⭐ {{ project.metadata.stars }}
+                                <span class="badge bg-yellow-500/10 text-yellow-400">
+                                    ⭐ {{ project.metadata.stars }} Stars
                                 </span>
                                 {% endif %}
                                 {% if project.metadata.forks is not none %}
-                                <span class="inline-flex items-center bg-green-900/50 text-green-300 px-2 py-1 rounded-full">
-                                    🍴 {{ project.metadata.forks }}
+                                <span class="badge bg-emerald-500/10 text-emerald-400">
+                                    🍴 {{ project.metadata.forks }} Forks
                                 </span>
                                 {% endif %}
                                 {% if project.metadata.language %}
-                                <span class="inline-flex items-center bg-purple-900/50 text-purple-300 px-2 py-1 rounded-full">
+                                <span class="badge bg-purple-500/10 text-purple-400">
                                     {{ project.metadata.language }}
                                 </span>
                                 {% endif %}
                                  {% if project.metadata.open_issues is not none %}
-                                <span class="inline-flex items-center bg-red-900/50 text-red-300 px-2 py-1 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                                <span class="badge bg-rose-500/10 text-rose-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
                                     {{ project.metadata.open_issues }} Issues
                                 </span>
                                 {% endif %}
                             </div>
                             {% endif %}
 
+                            {% if project.tags %}
+                            <div class="mb-4 pt-3 border-t border-slate-700/50">
+                                <strong class="block text-xs text-slate-500 mb-1.5 uppercase tracking-wider">Tags:</strong>
+                                <div class="flex flex-wrap gap-2">
+                                {% for tag in project.tags %}
+                                    <span class="badge bg-sky-500/20 text-sky-300">{{ tag }}</span>
+                                {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
                             {% if project.notes %}
-                            <div class="text-sm text-slate-300 mt-3 pt-3 border-t border-slate-700/50">
-                                <strong class="block text-slate-400 mb-1">Notes:</strong>
-                                <p class="whitespace-pre-wrap text-slate-400 bg-slate-900/50 p-3 rounded-md">{{ project.notes }}</p>
+                            <div class="text-sm text-slate-400 mt-3 pt-3 border-t border-slate-700/50">
+                                <strong class="block text-xs text-slate-500 mb-1.5 uppercase tracking-wider">Notes:</strong>
+                                <p class="whitespace-pre-wrap bg-slate-900/50 p-2.5 rounded-md text-xs leading-relaxed">{{ project.notes }}</p>
                             </div>
                             {% endif %}
                         </div>
 
-                        <div class="mt-auto p-4 bg-slate-900/50 rounded-b-xl flex justify-end">
-                             <form action="{{ url_for('delete_project_route', project_id=project._id|string) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
-                                <button type="submit"
-                                        class="px-4 py-2 bg-red-600/50 hover:bg-red-600 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-all">
+                        <div class="mt-auto p-4 bg-slate-800/50 border-t border-slate-700/50 rounded-b-xl flex justify-end">
+                             <form action="{{ url_for('delete_project_route', project_id=project._id|string) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project? This action cannot be undone.');">
+                                <button type="submit" class="btn btn-danger">
                                     Delete
                                 </button>
                             </form>
@@ -126,12 +203,14 @@
                 </div>
             {% else %}
                 <div class="text-center py-10 bg-slate-800 rounded-xl">
+                    <svg class="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+                    </svg>
                     <h3 class="mt-2 text-lg font-medium text-slate-300">No projects yet!</h3>
                     <p class="mt-1 text-sm text-slate-400">Add a GitHub repository URL to get started.</p>
                 </div>
             {% endif %}
         </section>
     </div>
-
 </body>
 </html>
